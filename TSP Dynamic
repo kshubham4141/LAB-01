@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX_CITIES 10
+
+int tsp(int cities, int graph[][MAX_CITIES], int start, int mask, int path[])
+{
+    if (mask == (1 << cities) - 1)
+    {
+        // All cities have been visited
+        return graph[start][0]; // Return to the starting city
+    }
+
+    int minCost = INT_MAX;
+    int nextCity = -1;
+
+    for (int i = 0; i < cities; i++)
+    {
+        if ((mask & (1 << i)) == 0)
+        {
+            // City i has not been visited
+            int newMask = mask | (1 << i);
+            int cost = graph[start][i] + tsp(cities, graph, i, newMask, path);
+
+            if (cost < minCost)
+            {
+                minCost = cost;
+                nextCity = i;
+            }
+        }
+    }
+
+    path[start] = nextCity;
+
+    return minCost;
+}
+
+void printPath(int cities, int path[])
+{
+    printf("Shortest path: 1");
+    int nextCity = path[0];
+    for (int i = 1; i < cities; i++)
+    {
+        printf(" -> %d", nextCity + 1);
+        nextCity = path[nextCity];
+    }
+    printf(" -> 1\n");
+}
+
+int main()
+{
+    int cities;
+    printf("Enter the number of cities: ");
+    scanf("%d", &cities);
+
+    int graph[MAX_CITIES][MAX_CITIES];
+
+    printf("Enter the distance matrix:\n");
+
+    for (int i = 0; i < cities; i++)
+    {
+        for (int j = 0; j < cities; j++)
+        {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    int startCity = 0; // Starting city index
+    int initialMask = 1; // Set the first bit for the starting city
+
+    int path[MAX_CITIES];
+    int minCost = tsp(cities, graph, startCity, initialMask, path);
+
+    printf("Minimum cost: %d\n", minCost);
+    printPath(cities, path);
+
+    return 0;
+}
